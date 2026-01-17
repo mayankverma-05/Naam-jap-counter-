@@ -1,40 +1,44 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Naam Jap Counter</title>
-</head>
-<body>
-
-<h1>🙏 Naam Jap Counter 🙏</h1>
-
-<p>Ram Naam Count: <span id="count">0</span></p>
-
-<button onclick="startJap()">Start Jap</button>
-<button onclick="stopJap()">Stop Jap</button>
-
 <script>
 let count = 0;
-
-const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-recognition.continuous = true;
-recognition.lang = "en-IN";
-
-recognition.onresult = function(event) {
-    const text = event.results[event.results.length - 1][0].transcript.toLowerCase();
-    if (text.includes("ram")) {
-        count++;
-        document.getElementById("count").innerText = count;
-    }
-};
+let recognition;
 
 function startJap() {
+
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+        alert("Speech Recognition not supported in this browser");
+        return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+
+    recognition.continuous = true;
+    recognition.lang = "en-IN";
+
+    recognition.onstart = function () {
+        console.log("Mic started");
+    };
+
+    recognition.onresult = function (event) {
+        const text = event.results[event.results.length - 1][0].transcript.toLowerCase();
+        console.log(text);
+
+        if (text.includes("ram")) {
+            count++;
+            document.getElementById("count").innerText = count;
+        }
+    };
+
+    recognition.onerror = function (event) {
+        alert("Mic error: " + event.error);
+    };
+
     recognition.start();
 }
 
 function stopJap() {
-    recognition.stop();
+    if (recognition) {
+        recognition.stop();
+    }
 }
 </script>
-
-</body>
-</html>
